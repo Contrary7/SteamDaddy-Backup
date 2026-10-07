@@ -24,7 +24,7 @@
 
 > [!IMPORTANT]
 > **Welcome to the new official home of SteamDaddy!**
-> Our previous repository (which reached over **195+ ⭐**) was unexpectedly lost to the void. We are back, fully updated, and better than ever. The project lives on right here!
+> Our previous repository was unexpectedly lost to the void. We are back, fully updated, and better than ever. The project lives on right here!
 >
 > ⭐ **If SteamDaddy helped you out, please drop a Star on this new repo!** It helps us rebuild our community and keeps the project alive.
 
@@ -343,6 +343,7 @@ By cloning, compiling, or executing code from this repository, you acknowledge t
 
 - **Selectively11** and **OST** for their foundational work and contributions to this space.
 - The **Contrary** and **Hubcap** communities for manifest sourcing and testing.
+- Online-fix.me and freetp.org
 - Everyone who stars the repo and reports bugs — you keep this project alive! ⭐
 
 ---
