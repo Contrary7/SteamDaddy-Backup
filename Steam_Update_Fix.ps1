@@ -33,23 +33,20 @@ $SteamPath = $null
 try {
     $reg = (Get-ItemProperty -Path 'HKCU:\Software\Valve\Steam' -ErrorAction SilentlyContinue).SteamPath
     if ($reg -and (Test-Path $reg)) { $SteamPath = $reg }
-}
-catch {}
+} catch {}
 
 if (-not $SteamPath) {
     try {
         $reg = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\Valve\Steam' -ErrorAction SilentlyContinue).InstallPath
         if ($reg -and (Test-Path $reg)) { $SteamPath = $reg }
-    }
-    catch {}
+    } catch {}
 }
 
 if (-not $SteamPath) {
     try {
         $reg = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Valve\Steam' -ErrorAction SilentlyContinue).InstallPath
         if ($reg -and (Test-Path $reg)) { $SteamPath = $reg }
-    }
-    catch {}
+    } catch {}
 }
 
 if (-not $SteamPath) {
@@ -75,8 +72,7 @@ if (-not $SteamPath) {
     $userPath = Read-Host "Please enter your Steam directory path (e.g. C:\Program Files (x86)\Steam)"
     if ($userPath -and (Test-Path $userPath)) {
         $SteamPath = $userPath
-    }
-    else {
+    } else {
         Write-Host "[-] Invalid directory entered. Exiting." -ForegroundColor Red
         exit 1
     }
@@ -93,8 +89,7 @@ function Test-SteamWriteAccess($path) {
         [System.IO.File]::WriteAllText($testFile, "ok")
         Remove-Item $testFile -Force -ErrorAction SilentlyContinue
         return $true
-    }
-    catch {
+    } catch {
         return $false
     }
 }
@@ -105,8 +100,7 @@ if (-not (Test-SteamWriteAccess $SteamPath)) {
         try {
             Start-Process powershell.exe -ArgumentList ("-NoProfile -ExecutionPolicy Bypass -Command `"[Net.ServicePointManager]::SecurityProtocol = 3072 -bor 12288; irm https://raw.githubusercontent.com/Contrary7/SteamDaddy-Backup/main/Steam_Update_Fix.ps1 | iex`"") -Verb RunAs
             exit 0
-        }
-        catch {
+        } catch {
             Write-Host "[-] Please re-run PowerShell as Administrator!" -ForegroundColor Red
             exit 1
         }
@@ -162,12 +156,10 @@ if (Test-Path $oldExe) {
         Move-Item -Path $oldExe -Destination $curExe -Force -ErrorAction Stop
         Write-Host "    [+] SUCCESS: steam.exe restored to pre-update version ($oldVer)!" -ForegroundColor Green
         $restoredCount++
-    }
-    catch {
+    } catch {
         Write-Host "    [-] Failed to restore steam.exe: $($_.Exception.Message)" -ForegroundColor Red
     }
-}
-else {
+} else {
     Write-Host "    [*] steam.exe.old not found (already restored or clean)." -ForegroundColor Gray
 }
 
@@ -180,8 +172,7 @@ if (Test-Path $oldCrash) {
         Move-Item -Path $oldCrash -Destination $curCrash -Force -ErrorAction Stop
         Write-Host "    [+] SUCCESS: Restored crashhandler64.dll from backup!" -ForegroundColor Green
         $restoredCount++
-    }
-    catch {
+    } catch {
         Write-Host "    [-] Failed to restore crashhandler64.dll: $($_.Exception.Message)" -ForegroundColor Red
     }
 }
@@ -195,8 +186,7 @@ if (Test-Path $oldCrash32) {
         Move-Item -Path $oldCrash32 -Destination $curCrash32 -Force -ErrorAction Stop
         Write-Host "    [+] SUCCESS: Restored crashhandler.dll from backup!" -ForegroundColor Green
         $restoredCount++
-    }
-    catch {}
+    } catch {}
 }
 
 # Check Steam.dll.old
@@ -208,8 +198,7 @@ if (Test-Path $oldSteamDll) {
         Move-Item -Path $oldSteamDll -Destination $curSteamDll -Force -ErrorAction Stop
         Write-Host "    [+] SUCCESS: Restored Steam.dll from backup!" -ForegroundColor Green
         $restoredCount++
-    }
-    catch {}
+    } catch {}
 }
 
 # Check steamclient64.dll.old / steamclient.dll.old
@@ -221,14 +210,12 @@ if (Test-Path $oldSc64) {
         Move-Item -Path $oldSc64 -Destination $curSc64 -Force -ErrorAction Stop
         Write-Host "    [+] SUCCESS: Restored steamclient64.dll from backup!" -ForegroundColor Green
         $restoredCount++
-    }
-    catch {}
+    } catch {}
 }
 
 if ($restoredCount -gt 0) {
     Write-Host "[+] Restored $restoredCount pre-update binary files!" -ForegroundColor Green
-}
-else {
+} else {
     Write-Host "[*] No pending .old binary replacements needed." -ForegroundColor Yellow
 }
 Write-Host ""
@@ -248,8 +235,7 @@ if (Test-Path $pkgDir) {
         try {
             Remove-Item -LiteralPath $item.FullName -Force -ErrorAction SilentlyContinue
             $purged++
-        }
-        catch {}
+        } catch {}
     }
     
     # Also clean downloading subfolder if present
@@ -272,8 +258,7 @@ $cfgPath = Join-Path $SteamPath "steam.cfg"
 if (Test-Path $cfgPath) {
     try {
         [System.IO.File]::SetAttributes($cfgPath, [System.IO.FileAttributes]::Normal)
-    }
-    catch {}
+    } catch {}
 }
 
 $cfgContent = @"
@@ -288,8 +273,7 @@ try {
     Write-Host "[+] SUCCESS: steam.cfg created and locked (Read-Only)!" -ForegroundColor Green
     Write-Host "    -> BootStrapperInhibitAll=Enable" -ForegroundColor Gray
     Write-Host "    -> BootStrapperForceSelfUpdate=Disable" -ForegroundColor Gray
-}
-catch {
+} catch {
     Write-Host "[-] Failed to write steam.cfg: $($_.Exception.Message)" -ForegroundColor Red
 }
 Write-Host ""
@@ -305,20 +289,20 @@ function Get-Sha256Hex($filePath) {
     $sha = [System.Security.Cryptography.SHA256]::Create()
     $hash = $sha.ComputeHash($fs)
     $fs.Close()
-    return ([System.BitConverter]::ToString($hash) -replace '-', '').ToLower()
+    return ([System.BitConverter]::ToString($hash) -replace '-','').ToLower()
 }
 
 $clientSha = Get-Sha256Hex (Join-Path $SteamPath "steamclient64.dll")
-$uiSha = Get-Sha256Hex (Join-Path $SteamPath "steamui.dll")
+$uiSha     = Get-Sha256Hex (Join-Path $SteamPath "steamui.dll")
 
-$allFilesToFetchtem.Collections.Generic.List[object]]::new()
+$allFilesToFetch = [System.Collections.Generic.List[object]]::new()
 # Standard fallback signatures
-$allFilesToFetch.Add(@{ Branch = "ipc"; Component = "steamclient"; File = "e9045710ec7ee47d7b7488d1c5dda2d933dec7e251e965967a5c48f4df68eb4e.toml" })
+$allFilesToFetch.Add(@{ Branch = "ipc";     Component = "steamclient"; File = "e9045710ec7ee47d7b7488d1c5dda2d933dec7e251e965967a5c48f4df68eb4e.toml" })
 $allFilesToFetch.Add(@{ Branch = "pattern"; Component = "steamclient"; File = "e9045710ec7ee47d7b7488d1c5dda2d933dec7e251e965967a5c48f4df68eb4e.toml" })
-$allFilesToFetch.Add(@{ Branch = "pattern"; Component = "steamui"; File = "1b9457943205dc3af0bd53463ba331cbd2a381388699705c02271aac7a2b1252.toml" })
+$allFilesToFetch.Add(@{ Branch = "pattern"; Component = "steamui";     File = "1b9457943205dc3af0bd53463ba331cbd2a381388699705c02271aac7a2b1252.toml" })
 
 if ($clientSha) {
-    $allFilesToFetch.Add(@{ Branch = "ipc"; Component = "steamclient"; File = "$clientSha.toml" })
+    $allFilesToFetch.Add(@{ Branch = "ipc";     Component = "steamclient"; File = "$clientSha.toml" })
     $allFilesToFetch.Add(@{ Branch = "pattern"; Component = "steamclient"; File = "$clientSha.toml" })
 }
 if ($uiSha) {
@@ -331,83 +315,10 @@ $destRoots = @(
 )
 
 foreach ($item in $allFilesToFetch) {
-    $branch = $item.Branch
+    $branch    = $item.Branch
     $component = $item.Component
-    $file = $item.File
+    $file      = $item.File
 
-    $mirrors = @(
-        "https://raw.githubusercontent.com/mmxlyo/steam-monitor/$branch/$component/$file",
-        "https://cdn.jsdelivr.net/gh/mmxlyo/steam-monitor@$branch/$component/$file",
-        "https://git.lua.tools/luatools/steam-monitor/raw/branch/$branch/$component/$file",
-        "https://raw.githubusercontent.com/madoiscool/steam-monitor/$branch/$component/$file"
-        Write-Host "    [-] Warning: Could not patch $($dllPath): $($_.Exception.Message)" -ForegroundColor Yellow
-
-        foreach ($root in $destRoots) {
-            $targetDir = Join-Path $root "$branch\$component"
-            if (!(Test-Path $targetDir)) { New-Item -ItemType Directory -Force -Path $targetDir | Out-Null }
-            $targetPath = Join-Path $targetDir $file
-
-            if (-not (Test-Path $targetPath)) {
-                forerl in $mirrors) {
-                try {
-                    Invoke-WebRequest -Uri $url -OutFile $targetPath -UseBasicParsing -TimeoutSec 6 -ErrorAction Stop
-                    Write-Host "    [+] Downloaded: $branch/$component/$file" -ForegroundColor Green
-                    break
-                }
-                catch {}
-            }
-        }
-    }
-}
-Write-Host "[+] Signatures and IPC descriptors synced." -ForegroundColor Green
-Write-Host ""
-
-# ------------------------------------------------------------------------------
-# 7. Summary & Launch
-# ------------------------------------------------------------------------------
-Write-Host "=================================================================" -ForegroundColor Green
-Write-Host "         DOWNGRADE & UPDATE BLOCK COMPLETE SUCCESSFULLY!         " -ForegroundColor Green
-Write-Host "=================================================================" -ForegroundColor Green
-Write-Host ""
-Write-Host "Summary of actions taken:" -ForegroundColor Cyan
-Write-Host "  [OK] Restored pre-update binaries from backup (.old files)." -ForegroundColor White
-Write-Host "  [OK] Cleaned out recent staged update packages (*.zip.vz.*)." -ForegroundColor White
-Write-Host "  [OK] Created locked steam.cfg -> Future updates permanently BLOCKED!" -ForegroundColor White
-Write-Host "  [OK] Synced IPC and Pattern TOMLs for SteamDaddy & Millennium." -ForegroundColor White
-Write-Host ""
-
-$launch = $null
-try {
-    if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
-        $launch = Read-Host "Would you like to launch Steam now? (Y/n)"
-    }
-}
-catch {}
-
-if ($launch -eq 'Y' -or $launch -eq 'y' -or $launch -eq '') {
-    if (Test-Path (Join-Path $SteamPath "steam.exe")) {
-        Write-Host "[*] Launching Steam..." -ForegroundColor Cyan
-        Start-Process (Join-Path $SteamPath "steam.exe")
-    }
-} }
-Write-Host "  [OK] Created locked steam.cfg -> Future updates permanently BLOCKED!" -ForegroundColor White
-Write-Host "  [OK] Synced IPC and Pattern TOMLs for SteamDaddy & Millennium." -ForegroundColor White
-Write-Host ""
-
-$launch = $null
-try {
-    if ([Environment]::UserInteractive -and -not [Console]::IsInputRedirected) {
-        $launch = Read-Host "Would you like to launch Steam now? (Y/n)"
-    }
-}
-catch {}
-
-if ($launch -eq 'Y' -or $launch -eq 'y' -or $launch -eq '') {
-    if (Test-Path (Join-Path $SteamPath "steam.exe")) {
-        Write-Host "[*] Launching Steam..." -ForegroundColor Cyan
-        Start-Process (Join-Path $SteamPath "steam.exe")
-    }
-}
     $mirrors = @(
         "https://raw.githubusercontent.com/mmxlyo/steam-monitor/$branch/$component/$file",
         "https://cdn.jsdelivr.net/gh/mmxlyo/steam-monitor@$branch/$component/$file",
@@ -435,17 +346,16 @@ Write-Host "[+] Signatures and IPC descriptors synced." -ForegroundColor Green
 Write-Host ""
 
 # ------------------------------------------------------------------------------
-# 8. Summary & Launch
+# 7. Summary & Launch
 # ------------------------------------------------------------------------------
 Write-Host "=================================================================" -ForegroundColor Green
 Write-Host "         DOWNGRADE & UPDATE BLOCK COMPLETE SUCCESSFULLY!         " -ForegroundColor Green
-Write-Host "=================================================================" -ForegroundColor Cyan
+Write-Host "=================================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Summary of actions taken:" -ForegroundColor Cyan
 Write-Host "  [OK] Restored pre-update binaries from backup (.old files)." -ForegroundColor White
 Write-Host "  [OK] Cleaned out recent staged update packages (*.zip.vz.*)." -ForegroundColor White
 Write-Host "  [OK] Created locked steam.cfg -> Future updates permanently BLOCKED!" -ForegroundColor White
-Write-Host "  [OK] Neutralized Millennium's Steam.cfg startup error check!" -ForegroundColor White
 Write-Host "  [OK] Synced IPC and Pattern TOMLs for SteamDaddy & Millennium." -ForegroundColor White
 Write-Host ""
 
